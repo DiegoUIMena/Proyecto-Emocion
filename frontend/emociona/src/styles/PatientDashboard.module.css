@@ -1,0 +1,159 @@
+.dashboardContainer {
+  margin-top: 50px !important; /* Separar el contenido del header (igual a la altura del header) */
+  padding: 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  max-width: 900px !important; /* Aumentar el ancho máximo */
+  width: 100%;
+  max-height: calc(100vh - 90px); /* Limitar la altura máxima para que no exceda la pantalla */
+  overflow-y: auto; /* Habilitar barra de desplazamiento vertical */
+  margin: auto;
+  text-align: center;
+  box-sizing: border-box; /* Incluir padding y borde en el cálculo del ancho */
+
+}
+  
+  h1 {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .emotionForm {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  label {
+    font-size: 1rem;
+    color: #555;
+    text-align: left;
+  }
+  
+  select,
+  textarea {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    width: calc(100% - 20px); /* Ajustar el ancho para evitar que toque los bordes */
+    margin: 0 auto; /* Centrar los campos dentro del contenedor */
+    box-sizing: border-box; /* Incluir padding y borde en el cálculo del ancho */
+  }
+  
+  textarea {
+    resize: vertical; /* Permitir que el usuario ajuste la altura del campo */
+    min-height: 100px; /* Altura mínima para los campos de texto */
+  }
+  
+  button {
+    padding: 10px;
+    background-color: #81c784;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #66bb6a;
+  }
+  
+  .successMessage {
+    color: green;
+    font-size: 1rem;
+    margin-top: 10px;
+  }
+
+  .historyItem {
+    margin-bottom: 20px;
+    text-align: left;
+  }
+  
+  .icon {
+    margin-right: 10px;
+    font-size: 1.5rem;
+    vertical-align: middle;
+  }
+
+
+  .lastEmotionContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin: 20px 0;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .lastEmotionIcon {
+    font-size: 5rem;
+  }
+  
+  .lastEmotionDetails {
+    text-align: left;
+  }
+  
+  .lastEmotionDetails strong {
+    font-size: 1.5rem;
+    color: #333;
+  }
+  
+  .lastEmotionDetails p {
+    margin: 5px 0;
+    color: #555;
+  }
+  
+  .lastEmotionDetails small {
+    color: #888;
+  }
+  .chartButton,
+.registerButton,
+.historyButton {
+  display: block; /* Asegurar que los botones estén en bloques separados */
+  width: 100%; /* Hacer que los botones abarquen el ancho completo del contenedor */
+  margin: 10px 0; /* Espaciado entre los botones */
+  padding: 15px; /* Aumentar el padding para un diseño más cómodo */
+  font-size: 1.2rem; /* Tamaño de fuente más grande */
+  font-weight: bold;
+  color: white;
+  background: linear-gradient(135deg, #81c784, #66bb6a); /* Fondo degradado */
+  border: none;
+  border-radius: 10px; /* Bordes redondeados */
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Sombra para botones */
+}
+
+.chartButton:hover,
+.registerButton:hover,
+.historyButton:hover {
+  background: linear-gradient(135deg, #66bb6a, #81c784); /* Invertir degradado */
+  transform: scale(1.02); /* Efecto de agrandamiento */
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3); /* Sombra más intensa */
+}
+
+.recommendationContainer {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.recommendationContainer h2 {
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.recommendationContainer p {
+  font-size: 1rem;
+  color: #555;
+}

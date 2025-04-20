@@ -1,0 +1,99 @@
+.dashboardContainer {
+  margin-top: 140px; /* Separar del header */
+  padding: 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  max-width: 1200px;
+  margin: auto;
+  text-align: center;
+  box-sizing: border-box;
+  max-height: calc(100vh - 170px); /* Limitar la altura máxima para que no exceda la pantalla */
+  overflow-y: auto; /* Habilitar barra de desplazamiento vertical */
+  overflow-x: hidden; /* Evitar desplazamiento horizontal */
+}
+
+.content {
+  display: flex;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.patientsList {
+  flex: 1;
+  background: #f9f9f9;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.patientsList ul {
+  list-style: none;
+  padding: 0;
+}
+
+.patientsList li {
+  padding: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #ddd;
+}
+
+.patientsList li:hover {
+  background: #f0f0f0;
+}
+
+.selectedPatient {
+  background: #81c784;
+  color: white;
+}
+
+.patientDetails {
+  flex: 2;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.recordsList {
+  list-style: none;
+  padding: 0;
+}
+
+.recordsList li {
+  margin-bottom: 10px;
+  text-align: left;
+}
+
+.chartContainer {
+  margin-top: 20px;
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.commentBox {
+  width: 100%;
+  height: 100px;
+  margin-top: 20px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.sendButton {
+  margin-top: 10px;
+  padding: 10px 20px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.sendButton:hover {
+  background-color: #388e3c;
+}

@@ -1,0 +1,61 @@
+.historyContainer {
+  text-align: center;
+  padding: 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  max-width: 1050px;
+  margin:  auto;
+  margin-top: 50px;
+  overflow-y: auto; /* Habilitar barra de desplazamiento vertical */
+  max-height: 80vh; /* Limitar la altura máxima para que el contenido no exceda la pantalla */
+}
+  
+  h1 {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  label {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 20px;
+    display: block;
+  }
+  
+  select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+  }
+  
+  ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .historyItem {
+    margin-bottom: 20px;
+    text-align: left;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 10px;
+    display: flex;
+    align-items: center; /* Alinear íconos y texto verticalmente */
+    gap: 10px; /* Espaciado entre íconos y texto */
+  }
+  
+  .historyItem strong {
+    font-size: 1.2rem;
+    color: #333;
+  }
+  
+  .historyItem em {
+    font-style: italic;
+    color: #555;
+  }
+  
+  .historyItem small {
+    color: #888;
+  }

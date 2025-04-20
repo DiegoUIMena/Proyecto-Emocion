@@ -1,0 +1,34 @@
+.chartContainer {
+  width: 90%;
+  max-width: 1000px; /* Aumentar el ancho máximo */
+  max-height: calc(95vh - 80px); /* Limitar la altura máxima para que no exceda la pantalla */
+  margin: 4rem auto; /* Agregar margen superior para separar del header */
+  margin-top: 140px;
+  padding: 5%; /* Espaciado interno */
+  background: #ffffff;
+  border-radius: 15px; /* Bordes redondeados */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Sombra para profundidad */
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto; /* Habilitar barra de desplazamiento vertical */
+  box-sizing: border-box; /* Incluir padding en el cálculo del ancho */
+}
+  
+  h1 {
+    font-size: 2rem; /* Tamaño más pequeño para el título */
+    color: #444; /* Color más oscuro para el texto */
+    margin-bottom: 20px;
+    font-weight: bold;
+    text-align: center; /* Centrar el título */
+  }
+  
+  .doughnutChart {
+    width: 60%; /* Reducir el ancho del gráfico circular */
+    height: auto; /* Ajustar la altura automáticamente */
+    margin: 0 auto; /* Centrar el gráfico dentro del contenedor */
+  }
+
+  canvas {
+    width: 100%; /* Asegura que el gráfico ocupe todo el ancho del contenedor */
+    height: auto; /* Ajusta la altura automáticamente */
+  }

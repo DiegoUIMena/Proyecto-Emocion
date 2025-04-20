@@ -1,0 +1,153 @@
+.adminContainer {
+    margin-top: 140px; /* Separar del header */
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    max-width: 95%; /* Ajustar el ancho máximo al 95% del ancho de la pantalla */
+    width: 1400px; /* Ancho fijo para pantallas grandes */
+    margin-left: auto; /* Centrar horizontalmente */
+    margin-right: auto; /* Centrar horizontalmente */
+    text-align: center;
+    box-sizing: border-box;
+    max-height: calc(100vh - 160px); /* Limitar la altura máxima */
+    overflow-y: auto; /* Habilitar barra de desplazamiento vertical */
+  }
+  
+  .statsContainer {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+  }
+  
+  .statCard {
+    background: #f9f9f9;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 30%;
+  }
+  
+  .statCard h3 {
+    font-size: 1.2rem;
+    color: #444;
+    margin-bottom: 10px;
+  }
+  
+  .statCard p {
+    font-size: 1.5rem;
+    color: #333;
+    font-weight: bold;
+  }
+  
+  .configContainer {
+    margin-top: 20px;
+    text-align: left;
+  }
+  
+  .messageBox {
+    width: 100%;
+    height: 100px;
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+  }
+  
+  .sendButton {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+  
+  .sendButton:hover {
+    background-color: #388e3c;
+  }
+  
+  .activitiesContainer {
+    margin-top: 20px;
+    text-align: left;
+  }
+  
+  .activitiesContainer ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .activityItem {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .activityItem strong {
+    font-size: 1rem;
+    color: #333;
+  }
+  
+  .activityItem small {
+    font-size: 0.8rem;
+    color: #888;
+  }
+  
+  .usersList {
+    margin-top: 20px;
+    text-align: left; /* Alinear el contenido a la izquierda */
+  }
+  
+  .usersList h2 {
+    font-size: 1.5rem;
+    color: #444;
+    margin-bottom: 10px;
+  }
+  
+  .usersList h3 {
+    font-size: 1.3rem;
+    color: #666;
+    margin-top: 20px;
+    margin-bottom: 10px;
+  }
+  
+  .usersList ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .userItem {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between; /* Separar el contenido horizontalmente */
+    align-items: center;
+  }
+  
+  .userItem strong {
+    font-size: 1.2rem;
+    color: #333;
+  }
+  
+  .actions {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .deleteButton {
+    padding: 5px 10px;
+    background-color: #e57373;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  
+  .deleteButton:hover {
+    background-color: #d32f2f;
+  }

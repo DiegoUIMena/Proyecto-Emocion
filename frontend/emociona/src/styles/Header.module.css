@@ -1,0 +1,48 @@
+.header {
+  width: 100%; /* Ocupa todo el ancho */
+  height: 60px; /* Altura fija */
+  background-color: #ffffff; /* Fondo claro */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra para separar el header */
+  display: flex;
+  justify-content: space-between; /* Espaciado entre logo e íconos */
+  align-items: center; /* Centrar verticalmente */
+  padding: 0 20px; /* Espaciado a los lados */
+  box-sizing: border-box; /* Incluir padding en el ancho */
+  position: fixed; /* Fijar el header al inicio de la página */
+  top: 0; /* Siempre visible en la parte superior */
+  z-index: 1000; /* Asegurar que esté por encima del contenido */
+}
+
+.logo h1 {
+  font-size: 1.5rem;
+  color: #81c784; /* Color principal */
+  cursor: pointer;
+  font-weight: bold;
+  margin: 0;
+}
+
+.navButtons {
+  display: flex;
+  gap: 15px; /* Espaciado entre íconos */
+}
+
+.iconButton {
+  background: none; /* Sin fondo */
+  border: none; /* Sin bordes */
+  color: #666; /* Color del botón */
+  font-weight: bold;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 5px; /* Espacio entre ícono y texto */
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.iconButton:hover {
+  color: #333; /* Hacer el color más oscuro al pasar el cursor */
+}
+
+.iconButton i {
+  font-size: 1.2rem; /* Tamaño de los íconos */
+}
