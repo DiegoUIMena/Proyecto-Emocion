@@ -4,7 +4,6 @@ import { doc, getDocs, collection, addDoc, query, where, orderBy } from "firebas
 import { db } from "../firebaseConfig"; // Asegúrate de que este archivo esté configurado correctamente
 import Header from "../components/Header";
 import { Line } from "react-chartjs-2";
-import { saveNotification } from "../components/firebaseUtils";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -85,17 +84,23 @@ const TherapistDashboard = () => {
         return;
       }
 
-      // Guardar la recomendación en Firestore
+      // Crear un documento en Notifications
+      const notificationRef = await addDoc(collection(db, "Notifications"), {
+        id_paciente: selectedPatient.id, // ID del paciente
+        comentario: professionalComment.trim(), // Comentario profesional
+        fecha: new Date().toISOString(), // Fecha actual
+        read: false, // Inicialmente no leída
+      });
+
+      // Guardar la recomendación en Firestore con el notificationId
       await addDoc(collection(db, "therapySessions"), {
         terapeutaId: user.uid, // ID del terapeuta autenticado
         id_paciente: selectedPatient.id, // ID del paciente seleccionado
         nombre_paciente: selectedPatient.name || "Paciente Anónimo", // Nombre del paciente
         fecha: new Date().toISOString(), // Fecha actual
         comentario: professionalComment.trim(), // Comentario profesional
+        notificationId: notificationRef.id, // ID del documento en Notifications
       });
-
-      // Llamar a saveNotification al enviar una recomendación
-      await saveNotification(selectedPatient.id, "Tienes una nueva recomendación de tu terapeuta.");
 
       // Enviar notificación push al backend
       const response = await fetch("http://localhost:5000/send-notification", {
