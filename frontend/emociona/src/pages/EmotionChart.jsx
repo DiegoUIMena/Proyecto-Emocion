@@ -12,6 +12,9 @@ const EmotionChart = () => {
   const [doughnutChartData, setDoughnutChartData] = useState(null);
   const auth = getAuth();
   const user = auth.currentUser;
+  const doughnutChartOptions = {
+    maintainAspectRatio: false, // Permitir que el tamaño sea controlado por el CSS
+  };
 
   useEffect(() => {
     if (user) {
@@ -26,10 +29,36 @@ const EmotionChart = () => {
           timestamp: doc.data().timestamp.toDate(),
         }));
 
+        // Asignar valores numéricos a las emociones
+        const emotionValues = {
+          Feliz: 5,
+          Relajado: 4,
+          Ansioso: 3,
+          Triste: 2,
+          Enojado: 1,
+        };
+
         // Procesar datos para el gráfico de líneas
         const labels = EmotionalRecords.map((entry) =>
           new Date(entry.timestamp).toLocaleDateString()
         );
+        const data = EmotionalRecords.map((entry) => emotionValues[entry.emotion] || 0);
+
+        setLineChartData({
+          labels,
+          datasets: [
+            {
+              label: "Nivel Emocional",
+              data,
+              borderColor: "#4caf50",
+              backgroundColor: "rgba(76, 175, 80, 0.2)",
+              tension: 0.4,
+              fill: true,
+            },
+          ],
+        });
+
+        // Contar emociones para el gráfico circular
         const emotionCounts = {
           Feliz: 0,
           Triste: 0,
@@ -38,69 +67,10 @@ const EmotionChart = () => {
           Relajado: 0,
         };
 
-        const datasets = [
-          {
-            label: "Feliz",
-            data: EmotionalRecords.map((entry) =>
-              entry.emotion === "Feliz" ? 1 : 0
-            ),
-            borderColor: "#FFB74D",
-            backgroundColor: "rgba(255, 183, 77, 0.2)",
-            tension: 0.4,
-            fill: true,
-          },
-          {
-            label: "Triste",
-            data: EmotionalRecords.map((entry) =>
-              entry.emotion === "Triste" ? 1 : 0
-            ),
-            borderColor: "#64B5F6",
-            backgroundColor: "rgba(100, 181, 246, 0.2)",
-            tension: 0.4,
-            fill: true,
-          },
-          {
-            label: "Ansioso",
-            data: EmotionalRecords.map((entry) =>
-              entry.emotion === "Ansioso" ? 1 : 0
-            ),
-            borderColor: "#FFD54F",
-            backgroundColor: "rgba(255, 213, 79, 0.2)",
-            tension: 0.4,
-            fill: true,
-          },
-          {
-            label: "Enojado",
-            data: EmotionalRecords.map((entry) =>
-              entry.emotion === "Enojado" ? 1 : 0
-            ),
-            borderColor: "#E57373",
-            backgroundColor: "rgba(229, 115, 115, 0.2)",
-            tension: 0.4,
-            fill: true,
-          },
-          {
-            label: "Relajado",
-            data: EmotionalRecordss.map((entry) =>
-              entry.emotion === "Relajado" ? 1 : 0
-            ),
-            borderColor: "#81C784",
-            backgroundColor: "rgba(129, 199, 132, 0.2)",
-            tension: 0.4,
-            fill: true,
-          },
-        ];
-
-        // Contar emociones para el gráfico circular
         EmotionalRecords.forEach((entry) => {
           if (emotionCounts[entry.emotion] !== undefined) {
             emotionCounts[entry.emotion]++;
           }
-        });
-
-        setLineChartData({
-          labels,
-          datasets,
         });
 
         setDoughnutChartData({
@@ -124,6 +94,40 @@ const EmotionChart = () => {
     }
   }, [user]);
 
+  // Configuración del gráfico de líneas
+  const lineChartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        display: true,
+        position: "top",
+      },
+      title: {
+        display: true,
+        text: "Evolución Emocional",
+      },
+    },
+    scales: {
+      y: {
+        min: 0, // Valor mínimo del eje Y
+        max: 6, // Valor máximo del eje Y (mayor que el valor máximo de las emociones)
+        ticks: {
+          stepSize: 1, // Incrementos en el eje Y
+        },
+        title: {
+          display: true,
+          text: "Nivel Emocional",
+        },
+      },
+      x: {
+        title: {
+          display: true,
+          text: "Fecha",
+        },
+      },
+    },
+  };
+
   return (
     <>
       <Header />
@@ -131,18 +135,32 @@ const EmotionChart = () => {
         <h1>Evolución Emocional</h1>
         {lineChartData ? (
           <div className={styles.lineChart}>
-            <Line data={lineChartData} />
+            <Line data={lineChartData} options={lineChartOptions} />
           </div>
         ) : (
           <p>Cargando datos del gráfico de líneas...</p>
         )}
+
+        {/* Valores de referencia de las emociones */}
+        <div className={styles.emotionReference}>
+          <h2>Valores de Referencia de las Emociones</h2>
+          <ul>
+            <li><strong>Feliz:</strong> 5</li>
+            <li><strong>Relajado:</strong> 4</li>
+            <li><strong>Ansioso:</strong> 3</li>
+            <li><strong>Triste:</strong> 2</li>
+            <li><strong>Enojado:</strong> 1</li>
+          </ul>
+        </div>
+
         {doughnutChartData ? (
-          <div className={styles.doughnutChart}>
-            <Doughnut data={doughnutChartData} />
-          </div>
-        ) : (
-          <p>Cargando datos del gráfico circular...</p>
-        )}
+  <div className={styles.doughnutChart}>
+    <Doughnut data={doughnutChartData} options={doughnutChartOptions} />
+    
+  </div>
+) : (
+  <p>Cargando datos del gráfico circular...</p>
+)}
       </div>
     </>
   );

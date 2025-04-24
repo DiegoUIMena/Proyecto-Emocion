@@ -41,18 +41,17 @@ const updateEmotionalHistory = async (userId, emotion) => {
 export { updateEmotionalHistory };
 
 
-// Función para guardar notificaciones en Firestore
-export const saveNotification = async (userId, type, message, extraData = {}) => {
+
+  // función para guardar notificaciones 
+  export const saveNotification = async (userId, message) => {
     try {
       await addDoc(collection(db, "Notifications"), {
-        userId: userId,
-        type: type,
-        message: message,
+        userId,
+        message,
         timestamp: Timestamp.now(),
-        read: false, // Indica si la notificación ha sido leída
-        extraData: extraData, // Información adicional opcional
+        read: false,
       });
-      console.log("Notificación guardada en la base de datos.");
+      console.log("Notificación guardada en Firestore.");
     } catch (error) {
       console.error("Error al guardar la notificación:", error);
     }

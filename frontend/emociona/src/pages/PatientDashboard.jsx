@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import styles from "../styles/PatientDashboard.module.css";
 import Header from "../components/Header";
 import { getAuth } from "firebase/auth"; // Importar Firebase Auth
+import Notifications from "../components/Notifications";
 
 const PatientDashboard = () => {
   const auth = getAuth(); // Obtener la instancia de autenticación
@@ -138,6 +139,8 @@ const PatientDashboard = () => {
       <Header />
       <div className={styles.dashboardContainer}>
         <h1>Dashboard del Paciente</h1>
+        {/* Mostrar notificaciones */}
+        {user && <Notifications userId={user.uid} />}
         {lastEmotion && (
           <div className={styles.lastEmotionContainer}>
             <div className={styles.lastEmotionIcon}>

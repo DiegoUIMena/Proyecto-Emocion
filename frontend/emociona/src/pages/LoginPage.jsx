@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { auth, db } from "../firebaseConfig"; // Importar Firestore
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore"; // Para obtener el rol del usuario
+import { doc, getDoc } from "firebase/firestore"; 
 import styles from "../styles/AuthPages.module.css";
 
 const LoginPage = () => {

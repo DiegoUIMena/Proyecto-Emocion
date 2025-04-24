@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { getAuth } from "firebase/auth";
-import { doc, getDocs, collection, addDoc, query, where, orderBy, limit } from "firebase/firestore";
+import { doc, getDocs, collection, addDoc, query, where, orderBy } from "firebase/firestore";
 import { db } from "../firebaseConfig"; // Asegúrate de que este archivo esté configurado correctamente
 import Header from "../components/Header";
 import { Line } from "react-chartjs-2";
+import { saveNotification } from "../components/firebaseUtils";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -49,7 +50,6 @@ const TherapistDashboard = () => {
         .filter((patient) => patient.role === "Paciente"); // Filtrar solo los usuarios con rol "Paciente"
       setPatients(patientsList);
     };
-
     fetchPatients();
   }, []);
 
@@ -60,8 +60,7 @@ const TherapistDashboard = () => {
         const q = query(
           collection(db, "EmotionalRecords"), // Cambiar a la colección correcta
           where("userId", "==", selectedPatient.id), // Filtrar por el ID del paciente seleccionado
-          orderBy("timestamp", "desc"),
-          limit(5) // Obtener los últimos 5 registros
+          orderBy("timestamp", "asc") // Ordenar por fecha ascendente
         );
         const recordsSnapshot = await getDocs(q);
         const patientRecords = recordsSnapshot.docs.map((doc) => doc.data());
@@ -80,6 +79,13 @@ const TherapistDashboard = () => {
     }
 
     try {
+      // Verifica si el paciente tiene un token de notificación
+      if (!selectedPatient.fcmToken) {
+        alert("El paciente no tiene un token de notificación registrado.");
+        return;
+      }
+
+      // Guardar la recomendación en Firestore
       await addDoc(collection(db, "therapySessions"), {
         terapeutaId: user.uid, // ID del terapeuta autenticado
         id_paciente: selectedPatient.id, // ID del paciente seleccionado
@@ -87,8 +93,31 @@ const TherapistDashboard = () => {
         fecha: new Date().toISOString(), // Fecha actual
         comentario: professionalComment.trim(), // Comentario profesional
       });
+
+      // Llamar a saveNotification al enviar una recomendación
+      await saveNotification(selectedPatient.id, "Tienes una nueva recomendación de tu terapeuta.");
+
+      // Enviar notificación push al backend
+      const response = await fetch("http://localhost:5000/send-notification", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          token: selectedPatient.fcmToken, // Token del paciente
+          message: `Tienes una nueva recomendación de tu terapeuta: ${professionalComment.trim()}`,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error al enviar la notificación:", errorData);
+        alert("Hubo un error al enviar la notificación.");
+        return;
+      }
+
+      console.log("Notificación enviada con éxito.");
       alert("Recomendación enviada con éxito.");
-      console.log("Recomendación enviada:");
       setProfessionalComment(""); // Limpiar el campo de texto
     } catch (error) {
       console.error("Error al enviar la recomendación:", error);
@@ -97,6 +126,14 @@ const TherapistDashboard = () => {
   };
 
   // Configuración del gráfico de líneas
+  const emotionValues = {
+    Feliz: 5,
+    Relajado: 4,
+    Ansioso: 3,
+    Triste: 2,
+    Enojado: 1,
+  };
+
   const chartData = {
     labels: emotionalRecords.map((record) =>
       new Date(record.timestamp?.toDate()).toLocaleDateString()
@@ -104,16 +141,18 @@ const TherapistDashboard = () => {
     datasets: [
       {
         label: "Nivel Emocional",
-        data: emotionalRecords.map((record) => record.nivel_emocional || 0), // Valores emocionales
+        data: emotionalRecords.map((record) => emotionValues[record.emotion] || 0), // Valores emocionales asignados
         borderColor: "#4caf50",
         backgroundColor: "rgba(76, 175, 80, 0.2)",
         tension: 0.4,
+        fill: true,
       },
     ],
   };
 
   const chartOptions = {
     responsive: true,
+    maintainAspectRatio: false, // Permitir que el gráfico se ajuste al tamaño del contenedor
     plugins: {
       legend: {
         position: "top",
@@ -123,7 +162,35 @@ const TherapistDashboard = () => {
         text: "Evolución Emocional",
       },
     },
+    scales: {
+      y: {
+        min: 0, // Valor mínimo del eje Y
+        max: 6, // Valor máximo del eje Y (mayor que el valor máximo de las emociones)
+        ticks: {
+          stepSize: 1, // Incrementos en el eje Y
+          callback: (value) => value, // Mostrar todos los valores en el eje Y
+        },
+        title: {
+          display: true,
+          text: "Nivel Emocional",
+        },
+      },
+      x: {
+        ticks: {
+          autoSkip: false, // Mostrar todas las etiquetas en el eje X
+          maxRotation: 45, // Rotar etiquetas si es necesario
+          minRotation: 0, // Rotación mínima
+        },
+        title: {
+          display: true,
+          text: "Fecha",
+        },
+      },
+    },
   };
+
+  // Obtener los últimos 5 registros emocionales
+  const lastFiveRecords = emotionalRecords.slice(-5);
 
   return (
     <>
@@ -154,22 +221,27 @@ const TherapistDashboard = () => {
             {selectedPatient ? (
               <>
                 <h2>Registros de {selectedPatient.name}</h2>
-                <ul className={styles.recordsList}>
-                  {emotionalRecords.map((record, index) => (
-                    <li key={index}>
-                      <strong>Fecha:</strong> {new Date(record.timestamp?.toDate()).toLocaleString()}
-                      <br />
-                      <strong>Emoción:</strong> {record.emotion}
-                      <br />
-                      <strong>Notas:</strong> {record.notes || "Sin notas"}
-                      <br />
-                      <strong>Factores Externos:</strong> {record.externalFactors || "No especificados"}
-                    </li>
-                  ))}
-                </ul>
                 <div className={styles.chartContainer}>
                   <Line data={chartData} options={chartOptions} />
                 </div>
+
+                {/* Mostrar los últimos 5 registros emocionales */}
+                <div className={styles.recordsList}>
+                  <h3>Últimos 5 Registros Emocionales</h3>
+                  <ul>
+                    {lastFiveRecords.map((record, index) => (
+                      <li key={index}>
+                        <strong>Fecha:</strong>{" "}
+                        {new Date(record.timestamp?.toDate()).toLocaleDateString()}{" "}
+                        - <strong>Emoción:</strong> {record.emotion} <br />
+                        <strong>Notas:</strong> {record.notes || "Sin notas"} <br />
+                        <strong>Factores Externos:</strong>{" "}
+                        {record.externalFactors || "No especificados"}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
                 <textarea
                   className={styles.commentBox}
                   placeholder="Escribe una recomendación personalizada..."

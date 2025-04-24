@@ -3,8 +3,7 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth"; // Importar el servicio de autenticación
 import { getAnalytics } from "firebase/analytics";
 import { getFirestore } from "firebase/firestore";
-import { getMessaging } from "firebase/messaging";
-
+import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
 
 const firebaseConfig = {
@@ -25,5 +24,5 @@ const db = getFirestore(app);
 const analytics = getAnalytics(app);
 const messaging = getMessaging(app);
 
-export { auth, db, analytics, messaging };
+export { auth, db, analytics, messaging, getToken, onMessage };
 

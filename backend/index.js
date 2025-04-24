@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const axios = require("axios");
+const admin = require("./config/firebaseAdmin");
 
 
 const app = express();
@@ -18,6 +19,7 @@ app.post("/analyze-emotion", async (req, res) => {
     return res.status(400).json({ error: "El texto es requerido." });
   }
 
+  // Solicitud HTTP POST a la API de Hugging Face para analizar el sentimiento
   try {
     const response = await axios.post(
       "https://api-inference.huggingface.co/models/tabularisai/multilingual-sentiment-analysis",
@@ -110,6 +112,45 @@ const generateRecommendation = (emotion) => {
       return "No se pudo generar una recomendación.";
   }
 };
+
+// Ruta para enviar notificaciones push
+app.post("/send-notification", async (req, res) => {
+  const { token, message } = req.body;
+
+  // Registrar en consola los datos recibidos
+  console.log("Datos recibidos:", req.body);
+
+
+  if (!token || !message) {
+    return res.status(400).json({ error: "El token y el mensaje son requeridos." });
+  }
+
+  try {
+    // Enviar la notificación y capturar el messageId
+    const messageId = await admin.messaging().send({
+      token, // Token del dispositivo
+      notification: {
+        title: "Nueva Notificación",
+        body: message,
+      },
+    });
+
+   
+
+    // Confirmar en consola que el mensaje fue enviado
+    console.log("Notificación enviada con éxito:", {
+      token,
+      message,
+      messageId,
+    });
+
+
+    res.status(200).send("Notificación enviada con éxito.");
+  } catch (error) {
+    console.error("Error al enviar la notificación:", error);
+    res.status(500).send("Error al enviar la notificación.");
+  }
+});
 
 // Iniciar el servidor
 app.listen(PORT, () => {

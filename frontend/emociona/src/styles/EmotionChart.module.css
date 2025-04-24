@@ -23,12 +23,46 @@
   }
   
   .doughnutChart {
-    width: 60%; /* Reducir el ancho del gráfico circular */
-    height: auto; /* Ajustar la altura automáticamente */
-    margin: 0 auto; /* Centrar el gráfico dentro del contenedor */
+    width: 100%; /* Asegurar que el contenedor ocupe todo el ancho disponible */
+    display: flex; /* Mostrar el gráfico y las referencias en una fila */
+    justify-content: center; /* Centrar el contenido horizontalmente */
+    align-items: center; /* Centrar el contenido verticalmente */
+    gap: 20px; /* Espaciado entre el gráfico y las referencias */
+    margin: 20px 0; /* Separar el gráfico circular de otros elementos */
   }
-
+  
+  .doughnutChart canvas {
+    max-width: 500px; /* Limitar el tamaño máximo si es necesario */
+  }
+  
   canvas {
     width: 100%; /* Asegura que el gráfico ocupe todo el ancho del contenedor */
     height: auto; /* Ajusta la altura automáticamente */
+  }
+
+  .emotionReference {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    text-align: center; /* Centrar el contenido */
+  }
+  
+  .emotionReference h2 {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+  
+  .emotionReference ul {
+    list-style-type: none;
+    padding: 0;
+    display: flex; /* Mostrar los elementos en una fila */
+    justify-content: center; /* Centrar los elementos horizontalmente */
+    gap: 20px; /* Espaciado entre los elementos */
+  }
+  
+  .emotionReference li {
+    font-size: 16px;
+    margin: 0; /* Eliminar márgenes verticales */
   }
