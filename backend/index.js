@@ -113,7 +113,6 @@ const generateRecommendation = (emotion) => {
   }
 };
 
-<<<<<<< HEAD
 // Ruta para enviar notificaciones push
 app.post("/send-notification", async (req, res) => {
   const { token, message } = req.body;
@@ -153,8 +152,6 @@ app.post("/send-notification", async (req, res) => {
   }
 });
 
-=======
->>>>>>> 5d623bbe95d15d8e44ea936dcba8d9300053231f
 // Iniciar el servidor
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
