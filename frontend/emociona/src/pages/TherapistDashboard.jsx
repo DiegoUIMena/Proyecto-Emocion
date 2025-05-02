@@ -4,6 +4,7 @@ import { doc, getDocs, collection, addDoc, query, where, orderBy } from "firebas
 import { db } from "../firebaseConfig"; // Asegúrate de que este archivo esté configurado correctamente
 import Header from "../components/Header";
 import { Line } from "react-chartjs-2";
+import config from "../config"; // Importar la configuración del backend desplegado
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -103,7 +104,7 @@ const TherapistDashboard = () => {
       });
 
       // Enviar notificación push al backend
-      const response = await fetch("http://localhost:5000/send-notification", {
+      const response = await fetch(`${config.backendUrl}/send-notification`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

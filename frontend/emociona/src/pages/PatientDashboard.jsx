@@ -7,6 +7,7 @@ import styles from "../styles/PatientDashboard.module.css";
 import Header from "../components/Header";
 import { getAuth } from "firebase/auth"; // Importar Firebase Auth
 import Notifications from "../components/Notifications";
+import config from "../config"; // Importar la configuración del backend desplegado
 
 const PatientDashboard = () => {
   const auth = getAuth(); // Obtener la instancia de autenticación
@@ -22,7 +23,7 @@ const PatientDashboard = () => {
   // Se envia al backend para el analisis de emociones
   const analyzeEmotion = async (text) => {
     try {
-      const response = await fetch("http://localhost:5000/analyze-emotion", {
+      const response = await fetch(`${config.backendUrl}/analyze-emotion`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
