@@ -11,17 +11,19 @@ const LoginPage = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError(""); // Limpiar el estado de error antes de intentar iniciar sesión
+  
     try {
       // Iniciar sesión con Firebase Authentication
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-
+  
       // Obtener el rol del usuario desde Firestore
       const userDoc = await getDoc(doc(db, "users", user.uid));
       if (userDoc.exists()) {
         const userData = userDoc.data();
         const role = userData.role;
-
+  
         // Redirigir al Dashboard correspondiente según el rol
         if (role === "Paciente") {
           window.location.href = "/dashboard/patient";
@@ -31,11 +33,14 @@ const LoginPage = () => {
           window.location.href = "/dashboard/admin";
         } else {
           setError("Rol no válido. Contacta al administrador.");
+          return; // Detener el flujo si el rol no es válido
         }
       } else {
         setError("No se encontró información del usuario.");
+        return; // Detener el flujo si no se encuentra el usuario
       }
     } catch (err) {
+      console.error("Error al iniciar sesión:", err.message);
       setError("Correo o contraseña incorrectos.");
     }
   };

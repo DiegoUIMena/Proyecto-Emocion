@@ -12,7 +12,7 @@ const HomePage = () => {
       <p className={styles.introText}>
         Transforma tus emociones en bienestar.
         <br />
-        Una guía para usted su y tu terapeuta.
+        Una guía para usted y su terapeuta.
       </p>
      
       <main>

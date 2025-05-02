@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { auth, db } from "../firebaseConfig"; // Importar Firestore
+import { auth, db, messaging, getToken } from "../firebaseConfig"; // Importar Firebase Messaging
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore"; // Para guardar el rol en Firestore
 import styles from "../styles/AuthPages.module.css";
@@ -31,11 +31,23 @@ const RegisterPage = () => {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // Guardar el nombre, correo y rol en Firestore
+      // Obtener el token de notificación
+      const token = await getToken(messaging, {
+        vapidKey: "BP0YRfMZwM-5AoJVgsi2d-ia0KpMiTTm5HBOgi6m_EUvTpdU8A5Io_PntAyZUyOmr02I6ywNr-u4cNSvpeeAZNs", // Reemplaza con tu clave VAPID
+      });
+
+      if (!token) {
+        console.error("No se pudo obtener el token de notificación.");
+        setError("No se pudo registrar el token de notificación.");
+        return;
+      }
+
+      // Guardar el nombre, correo, rol y token en Firestore
       await setDoc(doc(db, "users", user.uid), {
         name: name,
         email: email,
         role: role,
+        fcmToken: token, // Guardar el token de notificación
       });
 
       alert("Registro exitoso. Ahora puedes iniciar sesión.");
