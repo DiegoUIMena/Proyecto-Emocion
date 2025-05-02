@@ -10,7 +10,9 @@ const HomePage = () => {
         <h1 className={styles.headerTitle}>Emocion@</h1>
       </header>
       <p className={styles.introText}>
-        Transformá tus emociones en bienestar. Una guía para vos y tu terapeuta.
+        Transforma tus emociones en bienestar.
+        <br />
+        Una guía para usted su y tu terapeuta.
       </p>
      
       <main>

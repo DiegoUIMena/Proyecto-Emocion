@@ -6,10 +6,15 @@ const admin = require("./config/firebaseAdmin");
 
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
+
+// Ruta para la raíz
+app.get("/", (req, res) => {
+  res.send("Servidor de Emocion@ funcionando......OK");
+});
 
 // Ruta para analizar emociones
 app.post("/analyze-emotion", async (req, res) => {
