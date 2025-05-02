@@ -10,12 +10,11 @@ const Notifications = ({ userId }) => {
   useEffect(() => {
     console.log("Valor de userId:", userId); // Depuración del valor de userId
 
-    // Consulta inicial en la colección therapySessions
+    // Consulta para obtener todas las notificaciones no leídas del usuario
     const q = query(
-      collection(db, "therapySessions"),
-      where("id_paciente", "==", userId), // Filtrar por el paciente actual
-      orderBy("fecha", "desc"), // Ordenar por el campo `fecha` en orden descendente
-      limit(1) // Limitar a 1 resultado
+      collection(db, "Notifications"),
+      where("id_paciente", "==", userId), // Filtrar por el ID del paciente
+      where("read", "==", false) // Solo notificaciones no leídas
     );
 
     const unsubscribe = onSnapshot(q, async (snapshot) => {
