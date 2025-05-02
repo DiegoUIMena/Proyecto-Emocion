@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { collection, query, where, orderBy, limit, onSnapshot, doc, getDoc, updateDoc } from "firebase/firestore";
+import { collection, query, where, onSnapshot, doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import styles from "../styles/Notifications.module.css";
 
 const Notifications = ({ userId }) => {
-  const [notifications, setNotifications] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]); // Estado para las notificaciones no leídas
+  const [isModalOpen, setIsModalOpen] = useState(false); // Estado para abrir/cerrar el modal
 
+  // Obtener notificaciones no leídas del usuario
   useEffect(() => {
+    if (!userId) return;
+
     console.log("Valor de userId:", userId); // Depuración del valor de userId
 
     // Consulta para obtener todas las notificaciones no leídas del usuario
@@ -17,62 +20,35 @@ const Notifications = ({ userId }) => {
       where("read", "==", false) // Solo notificaciones no leídas
     );
 
-    const unsubscribe = onSnapshot(q, async (snapshot) => {
+    const unsubscribe = onSnapshot(q, (snapshot) => {
       if (snapshot.empty) {
-        console.log("No se encontraron sesiones de terapia para este paciente.");
-        setNotifications([]); // Asegúrate de limpiar el estado si no hay resultados
+        console.log("No se encontraron notificaciones no leídas para este paciente.");
+        setNotifications([]); // Limpiar el estado si no hay resultados
         return;
       }
 
-      const notificationsData = await Promise.all(
-        snapshot.docs.map(async (sessionDoc) => { // Cambiar el nombre del parámetro para evitar conflicto
-          const data = sessionDoc.data();
-          console.log("Documento obtenido:", data); // Depuración
+      // Mapear las notificaciones no leídas
+      const notificationsData = snapshot.docs.map((doc) => ({
+        id: doc.id, // ID del documento en Firestore
+        ...doc.data(), // Datos de la notificación
+      }));
 
-          // Verificar el estado de lectura en la colección Notifications
-          if (data.notificationId) {
-            const notificationRef = doc(db, "Notifications", data.notificationId);
-            const notificationSnap = await getDoc(notificationRef);
-
-            if (notificationSnap.exists() && !notificationSnap.data().read) {
-              return {
-                id: sessionDoc.id, // ID del documento en therapySessions
-                comentario: data.comentario || "Sin comentario", // Obtener el comentario
-                fecha: data.fecha, // Obtener el campo `fecha` (cadena)
-                notificationId: data.notificationId, // ID relacionado en Notifications
-              };
-            }
-          }
-          return null;
-        })
-      );
-
-      // Filtrar valores nulos (notificaciones leídas o sin notificationId)
-      const filteredNotifications = notificationsData.filter(Boolean);
-
-      console.log("Notificaciones no leídas obtenidas:", filteredNotifications); // Depuración
-      setNotifications(filteredNotifications); // Actualizar el estado con las notificaciones no leídas
+      console.log("Notificaciones no leídas obtenidas:", notificationsData); // Depuración
+      setNotifications(notificationsData); // Actualizar el estado con las notificaciones no leídas
     });
 
-    return () => unsubscribe();
+    return () => unsubscribe(); // Limpiar el listener al desmontar el componente
   }, [userId]);
-
-  useEffect(() => {
-    console.log("Notificaciones actualizadas:", notifications); // Depuración
-  }, [notifications]);
-
-  const unreadCount = notifications.length; // Contar las notificaciones
-  console.log("Cantidad de notificaciones no leídas:", unreadCount); // Depuración
 
   // Función para marcar una notificación como leída
   const markAsRead = async (notificationId) => {
     try {
-      const notificationRef = doc(db, "Notifications", notificationId); // Apuntar a la colección Notifications
+      const notificationRef = doc(db, "Notifications", notificationId); // Apuntar al documento en Firestore
       await updateDoc(notificationRef, { read: true }); // Actualizar el campo `read` en Firestore
 
-      // Actualizar el estado local para eliminar la notificación
+      // Actualizar el estado local para eliminar la notificación marcada como leída
       setNotifications((prevNotifications) =>
-        prevNotifications.filter((notification) => notification.notificationId !== notificationId)
+        prevNotifications.filter((notification) => notification.id !== notificationId)
       );
 
       console.log(`Notificación ${notificationId} marcada como leída.`);
@@ -81,8 +57,11 @@ const Notifications = ({ userId }) => {
     }
   };
 
+  const unreadCount = notifications.length; // Contar las notificaciones no leídas
+
   return (
     <div>
+      {/* Botón para abrir el modal de notificaciones */}
       <button
         className={styles.notificationsButton}
         onClick={() => setIsModalOpen(true)}
@@ -93,6 +72,7 @@ const Notifications = ({ userId }) => {
         )}
       </button>
 
+      {/* Modal de notificaciones */}
       {isModalOpen && (
         <div className={styles.modal}>
           <div className={styles.modalContent}>
@@ -108,13 +88,14 @@ const Notifications = ({ userId }) => {
                 <li
                   key={notification.id}
                   className={styles.unread}
-                  onClick={() => markAsRead(notification.notificationId)} // Usar notificationId para actualizar en Notifications
+                  onClick={() => markAsRead(notification.id)} // Marcar como leída al hacer clic
                 >
                   <p><strong>Mensaje:</strong> {notification.comentario}</p>
                   <p><small>Enviado: {new Date(notification.fecha).toLocaleString()}</small></p>
                 </li>
               ))}
             </ul>
+            {notifications.length === 0 && <p>No tienes notificaciones no leídas.</p>}
           </div>
         </div>
       )}
