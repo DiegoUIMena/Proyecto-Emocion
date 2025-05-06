@@ -39,3 +39,104 @@ button:hover {
   color: red;
   font-size: 0.9rem;
 }
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* Fondo semitransparente */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px; /* Espaciado interno para evitar que toque los bordes */
+  box-sizing: border-box;
+}
+
+.modalContent {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 600px; /* Ancho máximo del modal */
+  max-height: 80%; /* Altura máxima del modal (80% de la ventana) */
+  overflow-y: auto; /* Barra de desplazamiento vertical */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra para un diseño más profesional */
+}
+
+
+.modalActions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-around;
+}
+
+.modalActions button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.modalActions button:first-child {
+  background-color: #81c784;
+  color: white;
+}
+
+.modalActions button:last-child {
+  background-color: #632621;
+  color: white;
+}
+
+.modalContent h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.modalContent h3 {
+  font-size: 1.2rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: #555;
+}
+
+.modalContent p {
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+  color: #666;
+}
+
+.modalContent ul {
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+  color: #666;
+}
+
+.modalContent ul li {
+  margin-bottom: 0.5rem;
+}
+
+.modalActions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-around;
+}
+
+.modalActions button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.modalActions button:first-child {
+  background-color: #4caf50;
+  color: white;
+}
+
+.modalActions button:last-child {
+  background-color: #cf655d;
+  color: white;
+}

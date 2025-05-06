@@ -19,6 +19,7 @@ app.get("/", (req, res) => {
 // Ruta para analizar emociones
 app.post("/analyze-emotion", async (req, res) => {
   const { text } = req.body;
+  console.log("Texto recibido:", text);
 
   if (!text) {
     return res.status(400).json({ error: "El texto es requerido." });
@@ -27,11 +28,12 @@ app.post("/analyze-emotion", async (req, res) => {
   // Solicitud HTTP POST a la API de Hugging Face para analizar el sentimiento
   try {
     const response = await axios.post(
-      "https://api-inference.huggingface.co/models/tabularisai/multilingual-sentiment-analysis",
+      "https://api-inference.huggingface.co/models/nlptown/bert-base-multilingual-uncased-sentiment",
       { inputs: text },
       {
         headers: {
           Authorization: `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
+          Accept: "application/json", // Agregar este encabezado
         },
       }
     );
@@ -39,7 +41,7 @@ app.post("/analyze-emotion", async (req, res) => {
     console.log("Respuesta completa del modelo:", response.data);
 
     // Desanidar la respuesta
-    const predictions = response.data[0]; // Extraer el array interno
+    const predictions = response.data; // Extraer el array interno
 
     // Validar la estructura de la respuesta
     if (!predictions || !Array.isArray(predictions) || predictions.length === 0) {
@@ -83,18 +85,18 @@ app.post("/analyze-emotion", async (req, res) => {
 // Función para mapear sentimientos a emociones
 const mapSentimentToEmotion = (sentiment) => {
   switch (sentiment.toLowerCase()) {
-    case "very positive":
-      return "Muy Feliz";
-    case "positive":
-      return "Feliz";
-    case "neutral":
-      return "Relajado"; // Personalización: "Neutral" se mapea a "Relajado"
-    case "negative":
-      return "Ansioso"; // Personalización: "Negative" se mapea a "Ansioso"
-    case "very negative":
+    case "1 star":
       return "Muy Triste";
+    case "2 stars":
+      return "Triste";
+    case "3 stars":
+      return "Relajado";
+    case "4 stars":
+      return "Feliz";
+    case "5 stars":
+      return "Muy Feliz";
     default:
-      return "Neutral";
+  return "Neutral";
   }
 };
 
@@ -106,7 +108,7 @@ const generateRecommendation = (emotion) => {
     case "Feliz":
       return "Sigue haciendo lo que te hace feliz. ¡Mantén esa energía positiva!";
     case "Relajado":
-      return "Disfruta de este momento de tranquilidad y sigue cuidando tu bienestar.";
+      return "Mantén tu tranquilidad y sigue cuidando tu bienestar.";
     case "Ansioso":
       return "Practica técnicas de relajación como la respiración profunda o meditación.";
     case "Triste":
