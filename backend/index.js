@@ -1,9 +1,8 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const axios = require("axios");
 const admin = require("./config/firebaseAdmin");
-
+const OpenAI = require("openai");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -11,151 +10,119 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+// Configurar OpenAI
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY, // clave desde el archivo .env
+});
+
 // Ruta para la raíz
 app.get("/", (req, res) => {
   res.send("Servidor de Emocion@ funcionando......OK");
 });
 
-// Ruta para analizar emociones
+// Ruta para analizar emociones usando OpenAI
 app.post("/analyze-emotion", async (req, res) => {
-  const { text } = req.body;
+  const { text, userId, emotion } = req.body; // Recibimos también el userId
   console.log("Texto recibido:", text);
+  console.log("UserID recibido:", userId);
+  console.log("Emoción recibida:", emotion);
 
-  if (!text) {
-    return res.status(400).json({ error: "El texto es requerido." });
+  if (!text || !userId) {
+    return res.status(400).json({ error: "El texto, el userId  y la emoción son requeridos." });
   }
 
-  // Solicitud HTTP POST a la API de Hugging Face para analizar el sentimiento
   try {
-    const response = await axios.post(
-      "https://api-inference.huggingface.co/models/nlptown/bert-base-multilingual-uncased-sentiment",
-      { inputs: text },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
-          Accept: "application/json", // Agregar este encabezado
-        },
-      }
-    );
+    // Verificar si ya existe una recomendación en Firestore
+    const db = admin.firestore();
+    const recommendationsRef = db.collection("RecomendationsIA");
+    console.log("Buscando recomendación en Firestore...");
+    const querySnapshot = await recommendationsRef
+      .where("userId", "==", userId)
+      .where("notes", "==", text)
+      .get();
 
-    console.log("Respuesta completa del modelo:", response.data);
-
-    // Desanidar la respuesta
-    const predictions = response.data; // Extraer el array interno
-
-    // Validar la estructura de la respuesta
-    if (!predictions || !Array.isArray(predictions) || predictions.length === 0) {
-      console.error("Respuesta inválida del modelo:", response.data);
-      return res.status(500).json({ error: "Error al procesar la respuesta del modelo." });
+    if (!querySnapshot.empty) {
+      // Si ya existe una recomendación, devolverla directamente
+      const existingRecommendation = querySnapshot.docs[0].data().recommendation;
+      console.log("Recomendación existente encontrada en Firestore:", existingRecommendation);
+      return res.json({ recommendation: existingRecommendation });
     }
 
-    // Seleccionar la etiqueta con la puntuación más alta
-    const highestScoreLabel = predictions.reduce((prev, current) =>
-      prev.score > current.score ? prev : current
-    ).label;
+    // Si no existe una recomendación, llamar a OpenAI
+    console.log("No se encontró recomendación en Firestore. Llamando a OpenAI...");
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini", // Modelo de OpenAI
+      messages: [
+        { role: "system", content: "Eres un asistente que analiza emociones y genera recomendaciones." },
+        { role: "user", content: `Analiza la emoción del siguiente texto y solamente genera una recomendación muy breve (máximo 20 palabras): "${text}"` },
+      ],
+    });
 
-    if (!highestScoreLabel) {
-      console.error("No se pudo determinar la etiqueta con mayor puntuación:", predictions);
-      return res.status(500).json({ error: "No se pudo determinar la emoción." });
-    }
+    // Extraer la respuesta completa del modelo
+    const fullResponse = completion.choices[0]?.message?.content || "";
+    console.log("Respuesta completa de OpenAI:", fullResponse);
 
-    console.log("Etiqueta seleccionada:", highestScoreLabel);
 
-    // Mapear el sentimiento detectado a emociones específicas
-    const emotion = mapSentimentToEmotion(highestScoreLabel);
+    // Guardar la recomendación en Firestore
+    console.log("Guardando recomendación en Firestore...");
+    await recommendationsRef.add({
+      emotion,
+      notes: text,
+      userId,
+      recommendation: fullResponse, // Guardar la respuesta completa
+      timestamp: admin.firestore.Timestamp.now(),
+    });
+    console.log("Recomendación guardada en Firestore.");
 
-    // Generar una recomendación basada en la emoción detectada
-    const recommendation = generateRecommendation(emotion);
-
-    res.json({ emotion, recommendation });
+    res.json({ recommendation: fullResponse }); // Devuelve la recomendación
   } catch (error) {
-    if (error.response && error.response.status === 404) {
-      console.error("Modelo no encontrado:", error.message);
-      return res.status(404).json({ error: "El modelo no está disponible. Verifica la URL." });
-    }
-    if (error.response && error.response.status === 503) {
-      console.error("El modelo está ocupado:", error.message);
-      return res.status(503).json({ error: "El modelo está ocupado. Intenta nuevamente más tarde." });
-    }
     console.error("Error al analizar la emoción:", error.message);
     res.status(500).json({ error: "Error al analizar la emoción." });
   }
 });
 
-// Función para mapear sentimientos a emociones
-const mapSentimentToEmotion = (sentiment) => {
-  switch (sentiment.toLowerCase()) {
-    case "1 star":
-      return "Muy Triste";
-    case "2 stars":
-      return "Triste";
-    case "3 stars":
-      return "Relajado";
-    case "4 stars":
-      return "Feliz";
-    case "5 stars":
-      return "Muy Feliz";
-    default:
-  return "Neutral";
-  }
-};
-
-// Función para generar recomendaciones predefinidas
-const generateRecommendation = (emotion) => {
-  switch (emotion) {
-    case "Muy Feliz":
-      return "Comparte tu felicidad con los demás y sigue disfrutando.";
-    case "Feliz":
-      return "Sigue haciendo lo que te hace feliz. ¡Mantén esa energía positiva!";
-    case "Relajado":
-      return "Mantén tu tranquilidad y sigue cuidando tu bienestar.";
-    case "Ansioso":
-      return "Practica técnicas de relajación como la respiración profunda o meditación.";
-    case "Triste":
-      return "Realiza una actividad que disfrutes para mejorar tu estado de ánimo.";
-    case "Muy Triste":
-      return "Habla con alguien de confianza o busca apoyo profesional.";
-    default:
-      return "No se pudo generar una recomendación.";
-  }
-};
-
 // Ruta para enviar notificaciones push
 app.post("/send-notification", async (req, res) => {
   const { token, message } = req.body;
 
-  // Registrar en consola los datos recibidos
-  console.log("Datos recibidos:", req.body);
-
+  console.log("Datos recibidos para enviar notificación:", { token, message });
 
   if (!token || !message) {
     return res.status(400).json({ error: "El token y el mensaje son requeridos." });
   }
 
   try {
-    // Enviar la notificación y capturar el messageId
     const messageId = await admin.messaging().send({
-      token, // Token del dispositivo
+      token,
       notification: {
         title: "Nueva Notificación",
         body: message,
       },
     });
 
-   
-
-    // Confirmar en consola que el mensaje fue enviado
     console.log("Notificación enviada con éxito:", {
       token,
       message,
       messageId,
     });
 
-
-    res.status(200).send("Notificación enviada con éxito.");
+    res.status(200).json({ success: true, messageId });
   } catch (error) {
     console.error("Error al enviar la notificación:", error);
-    res.status(500).send("Error al enviar la notificación.");
+
+    // Manejar el error de token no registrado
+    if (error.errorInfo && error.errorInfo.code === "messaging/registration-token-not-registered") {
+      console.log("El token de notificación no está registrado. Eliminándolo de la base de datos...");
+      const db = admin.firestore();
+      const usersRef = db.collection("users");
+      const snapshot = await usersRef.where("fcmToken", "==", token).get();
+      snapshot.forEach(async (doc) => {
+        await doc.ref.update({ fcmToken: admin.firestore.FieldValue.delete() });
+        console.log(`Token inválido eliminado para el usuario: ${doc.id}`);
+      });
+    }
+
+    res.status(500).json({ error: "Error al enviar la notificación.", details: error.message });
   }
 });
 

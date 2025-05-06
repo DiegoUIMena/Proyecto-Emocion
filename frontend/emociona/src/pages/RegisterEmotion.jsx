@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import { getAuth } from "firebase/auth"; // Importar Firebase Auth
 import { updateEmotionalHistory } from "../components/firebaseUtils"; // Importar la función para actualizar el historial emocional
-
+import config from "../config"; // Importar la configuración del backend
 
 
 const RegisterEmotion = () => {
@@ -32,11 +32,32 @@ const handleSubmit = async (e) => {
       userId: user.uid, // Guardar el ID del usuario autenticado
     });
 
+    // Llamar al backend para analizar el texto y generar una recomendación
+    console.log("Llamando al backend para analizar el texto...");
+    const response = await fetch(`${config.backendUrl}/analyze-emotion`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ text: notes, userId: user.uid, emotion: emotion  }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Error al analizar la emoción.");
+    }
+
+    const result = await response.json();
+    console.log("Recomendación generada por OpenAI:", result.recommendation);
+
+
+
       // Actualizar el historial emocional
     await updateEmotionalHistory(user.uid, emotion);
     console.log("Usuario:", user.uid);
     console.log("Emoción:", emotion);
 
+    // Mostrar mensaje de éxito
     setSuccessMessage("Estado emocional registrado con éxito.");
     setEmotion("");
     setNotes("");

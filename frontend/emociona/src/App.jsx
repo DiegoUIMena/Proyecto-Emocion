@@ -14,7 +14,7 @@ import PatientProfile from "./pages/PatientProfile";
 import { messaging, getToken } from "./firebaseConfig";
 import { onMessage } from "firebase/messaging";
 import { getAuth } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { getDoc, doc, setDoc } from "firebase/firestore";
 import { db } from "./firebaseConfig"; // Asegúrate de que `db` esté correctamente configurado
 
 // Importar react-toastify
@@ -92,15 +92,17 @@ useEffect(() => {
         const auth = getAuth();
         auth.onAuthStateChanged(async (user) => {
           if (user) {
-            // Guardar el token en Firestore
-            await setDoc(
-              doc(db, "users", user.uid), // Guardar en la colección "users"
-              { fcmToken: token }, // Actualizar el campo fcmToken
-              { merge: true } // No sobrescribir otros datos del usuario
-            );
-            console.log("Token guardado en Firestore.");
-          } else {
-            console.log("No hay usuario autenticado.");
+            // Verificar el rol del usuario
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            if (userDoc.exists() && userDoc.data().role === "Paciente") {
+              // Guardar el token solo si el usuario es un paciente
+              await setDoc(
+                doc(db, "users", user.uid), // Guardar en la colección "users"
+                { fcmToken: token }, // Actualizar el campo fcmToken
+                { merge: true } // No sobrescribir otros datos del usuario
+              );
+              console.log("Token guardado en Firestore para el paciente.");
+            }
           }
         });
       } else {
