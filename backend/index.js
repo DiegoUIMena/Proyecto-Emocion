@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const admin = require("./config/firebaseAdmin");
 const OpenAI = require("openai");
+const { validateUserData } = require("./middlewares/validationMiddleware"); // Importar el middleware
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -21,15 +22,11 @@ app.get("/", (req, res) => {
 });
 
 // Ruta para analizar emociones usando OpenAI
-app.post("/analyze-emotion", async (req, res) => {
+app.post("/analyze-emotion", validateUserData, async (req, res) => {
   const { text, userId, emotion } = req.body; // Recibimos también el userId
   console.log("Texto recibido:", text);
   console.log("UserID recibido:", userId);
   console.log("Emoción recibida:", emotion);
-
-  if (!text || !userId) {
-    return res.status(400).json({ error: "El texto, el userId  y la emoción son requeridos." });
-  }
 
   try {
     // Verificar si ya existe una recomendación en Firestore
@@ -61,7 +58,6 @@ app.post("/analyze-emotion", async (req, res) => {
     // Extraer la respuesta completa del modelo
     const fullResponse = completion.choices[0]?.message?.content || "";
     console.log("Respuesta completa de OpenAI:", fullResponse);
-
 
     // Guardar la recomendación en Firestore
     console.log("Guardando recomendación en Firestore...");
