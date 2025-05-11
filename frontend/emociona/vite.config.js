@@ -1,12 +1,14 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  optimizeDeps: {
+    include: ["validator"], // Asegúrate de incluir validator en las dependencias optimizadas
+  },
   build: {
     rollupOptions: {
-      external: [], // Asegúrate de que no esté marcado como externo
+      external: [], // Asegúrate de que validator no esté marcado como externo
     },
   },
 });
