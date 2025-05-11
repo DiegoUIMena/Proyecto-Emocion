@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { auth, db, messaging, getToken } from "../firebaseConfig"; // Importar Firebase Messaging
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore"; // Para guardar el rol en Firestore
-import validator from "validator"; // Importar validator.js
 import styles from "../styles/AuthPages.module.css";
 
 const RegisterPage = () => {
@@ -14,17 +13,22 @@ const RegisterPage = () => {
   const [error, setError] = useState("");
   const [showModal, setShowModal] = useState(false); // Estado para controlar la visibilidad del modal
 
+  // Funciones de validación personalizadas
+  const isValidEmail = (email) => /\S+@\S+\.\S+/.test(email);
+  const isValidPassword = (password) => password.length >= 6 && password.length <= 20;
+  const isEmpty = (value) => value.trim() === "";
+
   const handleRegister = async (e) => {
     e.preventDefault();
 
     // Validar email
-    if (!validator.isEmail(email)) {
+    if (!isValidEmail(email)) {
       setError("Por favor, ingresa un email válido.");
       return;
     }
 
     // Validar contraseña
-    if (!validator.isLength(password, { min: 6, max: 20 })) {
+    if (!isValidPassword(password)) {
       setError("La contraseña debe tener entre 6 y 20 caracteres.");
       return;
     }
@@ -43,7 +47,7 @@ const RegisterPage = () => {
     }
 
     // Validar nombre
-    if (validator.isEmpty(name.trim())) {
+    if (isEmpty(name)) {
       setError("El nombre no puede estar vacío.");
       return;
     }
@@ -161,51 +165,6 @@ const RegisterPage = () => {
       <p>
         ¿Ya tienes una cuenta? <a href="/login">Inicia sesión aquí</a>
       </p>
-
-      {/* Modal para consentimiento */}
-      {showModal && (
-        <div className={styles.modal}>
-          <div className={styles.modalContent}>
-            <h2>Consentimiento Informado para el Uso de Datos Emocionales</h2>
-            <p>
-              En <strong>Emocion@</strong>, nos comprometemos a proteger su privacidad y garantizar la seguridad de sus datos emocionales. Antes de continuar con el registro, le solicitamos que lea y acepte los siguientes términos:
-            </p>
-            <h3>Finalidad del Tratamiento de Datos</h3>
-            <p>
-              Sus datos emocionales serán recopilados y procesados exclusivamente con fines terapéuticos, para brindarle un seguimiento adecuado y recomendaciones personalizadas. Estos datos solo serán accesibles para terapeutas autorizados.
-            </p>
-            <h3>Legislación Aplicable</h3>
-            <p>
-              El tratamiento de sus datos se realizará de acuerdo con la legislación chilena, incluyendo:
-            </p>
-            <ul>
-              <li><strong>Ley 19.496:</strong> Protección de los derechos de los consumidores.</li>
-              <li><strong>Ley 20.584:</strong> Regula los derechos y deberes de los pacientes.</li>
-              <li><strong>Ley 19.733:</strong> Protección a la privacidad, en cuanto a la recolección de datos personales en línea.</li>
-            </ul>
-            <h3>Derechos del Paciente</h3>
-            <p>
-              Usted tiene derecho a:
-            </p>
-            <ul>
-              <li>Acceder, corregir o eliminar sus datos emocionales en cualquier momento.</li>
-              <li>Oponerse al tratamiento de sus datos personales.</li>
-            </ul>
-            <h3>Seguridad de los Datos</h3>
-            <p>
-              Sus datos serán encriptados y almacenados con estrictas medidas de seguridad para garantizar su confidencialidad.
-            </p>
-            <h3>Política de Privacidad</h3>
-            <p>
-              Para más información, puede consultar nuestra <a href="/privacy-policy" target="_blank">Política de Privacidad</a> y nuestros <a href="/terms-and-conditions" target="_blank">Términos y Condiciones</a>.
-            </p>
-            <div className={styles.modalActions}>
-              <button onClick={handleAccept}>Aceptar</button>
-              <button onClick={handleReject}>Rechazar</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
